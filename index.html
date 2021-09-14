@@ -19,9 +19,9 @@ var playerX = 0;
 var playerY = 100;
 var velY = 1;
 var velX = 0;
-const d = new Date();
 
 function draw(){
+	var d = new Date();
 	ctx.fillStyle = "#33bb66";
 	ctx.fillRect(0, ctx.canvas.height - 100, ctx.canvas.width, 100);
 	playerPhysics();
