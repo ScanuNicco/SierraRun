@@ -1,2 +1,44 @@
 <html>
+<body>
+<canvas id="gameView"></canvas>
+<style>
+#gameView{
+	width: 100vw;
+	height: 100vh;
+	position: absolute;
+	left: 0px;
+	top: 0px;
+}
+</style>
+<script>
+var canv = document.getElementById("gameView");
+var ctx = canv.getContext('2d', { alpha: false }); 
+ctx.canvas.width = window.innerWidth;
+ctx.canvas.height = window.innerHeight;
+var playerX = 0;
+var playerY = 100;
+var velY = 1;
+var velX = 0;
+const d = new Date();
+
+function draw(){
+	ctx.fillStyle = "#33bb66";
+	ctx.fillRect(0, ctx.canvas.height - 100, ctx.canvas.width, 100);
+	playerPhysics();
+	ctx.fillRect(playerX, playerY, 50, 50);
+	requestAnimationFrame(draw);
+	ctx.fillText(d.getHours() + ":" + d.getMinutes() + ":" + d.getSeconds(), 10, 90);
+}
+
+draw();
+
+function playerPhysics(){
+	playerX += velX;
+	playerY += velY;
+	if(playerY < ctx.canvas.height - 100){
+		velY = 0;
+	}
+}
+</script>
+</body>
 </html>
