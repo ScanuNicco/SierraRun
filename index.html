@@ -15,19 +15,81 @@ var canv = document.getElementById("gameView");
 var ctx = canv.getContext('2d', { alpha: false }); 
 ctx.canvas.width = window.innerWidth;
 ctx.canvas.height = window.innerHeight;
-var playerX = 0;
+var playerX = 100;
 var playerY = 100;
-var velY = 1;
+var velY = 6;
 var velX = 0;
+var obstacles = [];
 
+class Obstacle {
+	constructor(x, y) {
+		this.x = x;
+		this.y = y;
+		this.xVel = -3;
+		this.yVel = 0;
+	}
+
+	physics() {
+		this.x += this.xVel;
+		this.y += this.yVel;
+		if(this.x < 0){
+			this.x = ctx.canvas.width + Math.floor(Math.random() * ctx.canvas.width);
+		}
+	}
+	
+	draw(){
+		
+	}
+
+	getHitbox(){
+		
+	}	
+}
+
+class Tree extends Obstacle {
+	constructor(x, y){
+		super(x, y);
+	}
+
+	physics(){
+		super.physics();
+	}
+
+	draw(){
+		ctx.fillStyle = "#33bb66";
+		ctx.fillRect(this.x, this.y, 50, 100);
+	}
+
+	getHitbox(){
+		return {"x1": this.x, "y1": this.y, "x2": this.x + 50, "y2": this.y + 100};
+	}
+}
+
+obstacles[0] = new Tree(ctx.canvas.width, ctx.canvas.height - 200);
+
+document.body.onkeyup = function(e){
+    if(e.keyCode == 32){
+        velY = -6;
+	setTimeout(function() { velY = -3 }, 500);
+	setTimeout(function() { velY = 0 }, 750);
+	setTimeout(function() { velY = 3 }, 800);
+	setTimeout(function() { velY = 6 }, 1100);
+    }
+}
 function draw(){
 	var d = new Date();
+	ctx.fillStyle = "white"; /*Fill the canvas with white*/
+	ctx.fillRect(0, 0, ctx.canvas.width, ctx.canvas.height);
 	ctx.fillStyle = "#33bb66";
 	ctx.fillRect(0, ctx.canvas.height - 100, ctx.canvas.width, 100);
 	playerPhysics();
 	ctx.fillRect(playerX, playerY, 50, 50);
-	requestAnimationFrame(draw);
 	ctx.fillText(d.getHours() + ":" + d.getMinutes() + ":" + d.getSeconds(), 10, 90);
+	for(var i = 0; i < obstacles.length; i++){
+		obstacles[i].physics();
+		obstacles[i].draw();
+	}
+	requestAnimationFrame(draw);
 }
 
 draw();
@@ -35,7 +97,7 @@ draw();
 function playerPhysics(){
 	playerX += velX;
 	playerY += velY;
-	if(playerY < ctx.canvas.height - 100){
+	if(playerY > ctx.canvas.height - 150){
 		velY = 0;
 	}
 }
