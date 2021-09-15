@@ -5,8 +5,18 @@
 </head>
 
 <body>
+        <div id="menu">
+                <h1 style="font-size: 3em">Sierra Run!</h1>
+		<p id="message">Can you get away from the bear? Press s to slide under trees and space to jump over rocks.</p>
+                <button onclick="startGame()" id="playButton">Play Now</button>
+        </div>
+        </div>
         <canvas id="gameView"></canvas>
         <style>
+                body {
+                        color: #eee;
+                }
+
                 #gameView {
                         width: 100vw;
                         height: 100vh;
@@ -14,6 +24,44 @@
                         left: 0px;
                         top: 0px;
                 }
+
+                #menu {
+                        z-index: 1000;
+                        width: 50vw;
+                        height: 50vh;
+                        position: absolute;
+                        left: 25vw;
+                        top: 25vh;
+                        text-align: center;
+                        background: #111;
+                        box-shadow: 5px 5px 5px rgba(0, 0, 0, .3);
+                        border-radius: 10px;
+			font-family: sans-serif;
+                }
+
+		#playButton {
+			background: #33bb66;
+			padding: 10px;
+			font-size: 18pt;
+			color: #eee;
+			animation: sizeChange 1.8s infinite;
+			border: none;
+			border-radius: 3px;
+		}
+
+		@keyframes sizeChange{
+			0% {
+				transform: scale(1);
+			}
+			
+			50% {
+				transform: scale(1.08);
+			}
+			
+			100% {
+				transform: scale(1);
+			}
+		}
         </style>
         <script>
                 var canv = document.getElementById("gameView");
@@ -39,20 +87,22 @@
                 const rock = document.createElement("Img");
                 rock.src = "rock.svg";
 
-
                 class Obstacle {
                         constructor(x, y) {
                                 this.x = x;
                                 this.y = y;
                                 this.xVel = -5;
                                 this.yVel = 0;
+                                this.origY = y;
+				this.width = 0;
                         }
 
                         physics() {
                                 this.x += this.xVel;
                                 this.y += this.yVel;
-                                if (this.x < 0) {
+                                if (this.x < 0 - this.width) {
                                         this.x = ctx.canvas.width + Math.floor(Math.random() * ctx.canvas.width);
+					this.y = this.origY;
                                 }
                         }
 
@@ -68,6 +118,7 @@
                 class Tree extends Obstacle {
                         constructor(x, y) {
                                 super(x, y);
+				this.width = 184;
                         }
 
                         physics() {
@@ -75,15 +126,15 @@
                         }
 
                         draw() {
-                                ctx.drawImage(tree, this.x, this.y, 184, 258);
+                                ctx.drawImage(tree, this.x, this.y, this.width, 258);
                         }
 
                         getHitbox() {
                                 return {
                                         "x1": this.x,
                                         "y1": this.y,
-                                        "x2": this.x + 50,
-                                        "y2": this.y + 100
+                                        "x2": this.x + this.width,
+                                        "y2": this.y + 200
                                 };
                         }
                 }
@@ -91,7 +142,6 @@
                 class Rock extends Obstacle {
                         constructor(x, y) {
                                 super(x, y);
-                                this.origY = y;
                         }
 
                         physics() {
@@ -132,8 +182,8 @@
                                 return {
                                         "x1": this.x,
                                         "y1": this.y,
-                                        "x2": this.x + 50,
-                                        "y2": this.y + 100
+                                        "x2": this.x + 64,
+                                        "y2": this.y + 64
                                 };
                         }
                 }
@@ -154,6 +204,16 @@
                                 }
                         }
                 }
+
+		function isTouching(object){
+			var hitbox = object.getHitbox();
+			if(playerX >= hitbox.x1 && playerX <= hitbox.x2){
+				if(playerY >= hitbox.y1 && playerY <= hitbox.y2){
+					return true;
+				}
+			}
+			return false;
+		}
 
                 for (var i = 0; i < 10; i++) {
                         obstacles[i] = new Tree(i * (ctx.canvas.width / 5) + Math.floor(Math.random() * 100), ctx.canvas.height - 358);
@@ -198,6 +258,19 @@
                                 velX = 1;
                         }
                 }
+	
+		setTimeout(function (){
+		//Draw some stuff on the canvas so it doesn't look wierd before the game is started
+                ctx.drawImage(background, 0, 0, ctx.canvas.width, ctx.canvas.height);
+                for (var i = 0; i < bt.length; i++) {
+                        bt[i].draw();
+                }
+                ctx.fillStyle = "#004b00ff";
+                ctx.fillRect(0, ctx.canvas.height - 100, ctx.canvas.width, 100);
+                for (var i = 0; i < obstacles.length; i++) {
+                        obstacles[i].draw();
+                }
+		}, 500);
 
                 function draw() {
                         ctx.drawImage(background, 0, 0, ctx.canvas.width, ctx.canvas.height);
@@ -210,6 +283,10 @@
                         for (var i = 0; i < obstacles.length; i++) {
                                 obstacles[i].physics();
                                 obstacles[i].draw();
+				if(isTouching(obstacles[i])){
+					endGame(false);
+					return;
+				}
                         }
                         playerPhysics();
                         ctx.fillText(JSON.stringify(obstacles[10]), 10, 90);
@@ -218,7 +295,7 @@
                         requestAnimationFrame(draw);
                 }
 
-                draw();
+                //draw();
 
                 function playerPhysics() {
                         playerX += velX;
@@ -227,6 +304,27 @@
                                 velY = 0;
                         }
                 }
+
+                function startGame() {
+                        document.getElementById("menu").style.display = "none";
+			for (var i = 0; i < obstacles.length; i++) {
+				if(obstacles[i].x < 200){ //If the obstacles are too close to where the player starts, they won't be able to react in time
+					obstacles[i].y = 3000;
+				}
+			}
+			playerX = 100;
+                        draw();
+                }
+
+		function endGame(playerWon) {
+			document.getElementById("menu").style.display = "block";
+			if(playerWon){
+			
+			} else {
+				document.getElementById("message").innerText = "Looks like that didn't go as planned...";
+				document.getElementById("playButton").innerText = "Try Again";
+			}
+		}
         </script>
 </body>
 
