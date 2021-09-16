@@ -15,7 +15,7 @@
    viewBox="0 0 540.37304 89.364064"
    version="1.1"
    id="svg2361"
-   sodipodi:docname="backgroundTrees.svg"
+   sodipodi:docname="backgroundTreesOld.svg"
    inkscape:version="0.92.5 (2060ec1f9f, 2020-04-08)">
   <defs
      id="defs2355">
@@ -785,34 +785,6 @@
        y1="233.31108"
        x2="242.1044"
        y2="44.368988" />
-    <filter
-       style="color-interpolation-filters:sRGB;"
-       inkscape:label="Lighting"
-       id="filter1062">
-      <feComponentTransfer
-         in="blur"
-         result="component"
-         id="feComponentTransfer1060">
-        <feFuncR
-           type="gamma"
-           amplitude="1"
-           exponent="1"
-           offset="0.05"
-           id="feFuncR1054" />
-        <feFuncG
-           type="gamma"
-           amplitude="1"
-           exponent="1"
-           offset="0.05"
-           id="feFuncG1056" />
-        <feFuncB
-           type="gamma"
-           amplitude="1"
-           exponent="1"
-           offset="0.05"
-           id="feFuncB1058" />
-      </feComponentTransfer>
-    </filter>
   </defs>
   <sodipodi:namedview
      id="base"
@@ -822,7 +794,7 @@
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
      inkscape:zoom="0.35"
-     inkscape:cx="35.173854"
+     inkscape:cx="450.88814"
      inkscape:cy="294.59455"
      inkscape:document-units="mm"
      inkscape:current-layer="layer1"
@@ -855,8 +827,7 @@
      id="layer1"
      transform="translate(189.29956,-137.41325)">
     <g
-       id="g2931"
-       style="filter:url(#filter1062)">
+       id="g2931">
       <rect
          y="182.25192"
          x="-189.6013"

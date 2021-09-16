@@ -6,9 +6,12 @@
 
 <body>
         <div id="menu">
-                <h1 style="font-size: 3em">Sierra Run!</h1>
-		<p id="message">Can you get away from the bear? Press s to slide under trees and space to jump over rocks.</p>
+                <h1 style="font-size: 3em" id="mainMessage">Sierra Run!</h1>
+                <p id="message">Can you get away from the bear? Press s to slide under trees and space to jump over rocks.</p>
                 <button onclick="startGame()" id="playButton">Play Now</button>
+                <p>If Sierra Run is lagging, try lowering the resolution</p>
+                <lablel>50%</label><input type="range" min="5" max="10" value="10" id="renderScale" oninput="changeScale()"></input>
+                        <lablel>Native</label>
         </div>
         </div>
         <canvas id="gameView"></canvas>
@@ -36,40 +39,41 @@
                         background: #111;
                         box-shadow: 5px 5px 5px rgba(0, 0, 0, .3);
                         border-radius: 10px;
-			font-family: sans-serif;
+                        font-family: sans-serif;
                 }
 
-		#playButton {
-			background: #33bb66;
-			padding: 10px;
-			font-size: 18pt;
-			color: #eee;
-			animation: sizeChange 1.8s infinite;
-			border: none;
-			border-radius: 3px;
-		}
+                #playButton {
+                        background: #33bb66;
+                        padding: 10px;
+                        font-size: 18pt;
+                        color: #eee;
+                        animation: sizeChange 1.8s infinite;
+                        border: none;
+                        border-radius: 3px;
+                }
 
-		@keyframes sizeChange{
-			0% {
-				transform: scale(1);
-			}
-			
-			50% {
-				transform: scale(1.08);
-			}
-			
-			100% {
-				transform: scale(1);
-			}
-		}
+                @keyframes sizeChange {
+                        0% {
+                                transform: scale(1);
+                        }
+
+                        50% {
+                                transform: scale(1.08);
+                        }
+
+                        100% {
+                                transform: scale(1);
+                        }
+                }
         </style>
         <script>
                 var canv = document.getElementById("gameView");
                 var ctx = canv.getContext('2d', {
                         alpha: false
                 });
-                ctx.canvas.width = window.innerWidth;
-                ctx.canvas.height = window.innerHeight;
+                var rScale = 1;
+                ctx.canvas.width = window.innerWidth * rScale;
+                ctx.canvas.height = window.innerHeight * rScale;
                 var playerX = 100;
                 var playerY = ctx.canvas.height - 200;
                 var playerHeight = 100;
@@ -94,15 +98,15 @@
                                 this.xVel = -5;
                                 this.yVel = 0;
                                 this.origY = y;
-				this.width = 0;
+                                this.width = 0;
                         }
 
                         physics() {
                                 this.x += this.xVel;
                                 this.y += this.yVel;
                                 if (this.x < 0 - this.width) {
-                                        this.x = ctx.canvas.width + Math.floor(Math.random() * ctx.canvas.width);
-					this.y = this.origY;
+                                        this.x = ctx.canvas.width * 2 + Math.floor(Math.random() * ctx.canvas.width);
+                                        this.y = this.origY;
                                 }
                         }
 
@@ -118,7 +122,7 @@
                 class Tree extends Obstacle {
                         constructor(x, y) {
                                 super(x, y);
-				this.width = 184;
+                                this.width = 184;
                         }
 
                         physics() {
@@ -142,6 +146,7 @@
                 class Rock extends Obstacle {
                         constructor(x, y) {
                                 super(x, y);
+                                this.width = 64;
                         }
 
                         physics() {
@@ -152,9 +157,7 @@
                                         for (var i = ctx.canvas.width; i < ctx.canvas.width * 2; i++) {
                                                 var tooClose = false;
                                                 for (var j = 0; j < obstacles.length; j++) {
-                                                        if (obstacles[j].x < i - 350 || obstacles[j].x > i + 150) {
-                                                                //This obstacle is not causing any problems
-                                                        } else {
+                                                        if (obstacles[j].x + obstacles[j].width > i - 200 && obstacles[j].x < i + 200) {
                                                                 tooClose = true;
                                                         }
                                                 }
@@ -194,7 +197,7 @@
                         }
 
                         draw() {
-                                ctx.drawImage(backTrees, this.x, ctx.canvas.height - 302, 1225, 202);
+                                ctx.drawImage(backTrees, this.x, ctx.canvas.height - 301, 1225, 202);
                         }
 
                         physics() {
@@ -205,17 +208,17 @@
                         }
                 }
 
-		function isTouching(object){
-			var hitbox = object.getHitbox();
-			if(playerX >= hitbox.x1 && playerX <= hitbox.x2){
-				if(playerY >= hitbox.y1 && playerY <= hitbox.y2){
-					return true;
-				}
-			}
-			return false;
-		}
+                function isTouching(object) {
+                        var hitbox = object.getHitbox();
+                        if (playerX + playerWidth >= hitbox.x1 && playerX <= hitbox.x2) {
+                                if (playerY + playerHeight >= hitbox.y1 && playerY <= hitbox.y2) {
+                                        return true;
+                                }
+                        }
+                        return false;
+                }
 
-                for (var i = 0; i < 10; i++) {
+                for (var i = 0; i < 15; i++) {
                         obstacles[i] = new Tree(i * (ctx.canvas.width / 5) + Math.floor(Math.random() * 100), ctx.canvas.height - 358);
                 }
                 obstacles[obstacles.length] = new Rock(1, ctx.canvas.height - 164);
@@ -258,19 +261,19 @@
                                 velX = 1;
                         }
                 }
-	
-		setTimeout(function (){
-		//Draw some stuff on the canvas so it doesn't look wierd before the game is started
-                ctx.drawImage(background, 0, 0, ctx.canvas.width, ctx.canvas.height);
-                for (var i = 0; i < bt.length; i++) {
-                        bt[i].draw();
-                }
-                ctx.fillStyle = "#004b00ff";
-                ctx.fillRect(0, ctx.canvas.height - 100, ctx.canvas.width, 100);
-                for (var i = 0; i < obstacles.length; i++) {
-                        obstacles[i].draw();
-                }
-		}, 500);
+
+                setTimeout(function() {
+                        //Draw some stuff on the canvas so it doesn't look wierd before the game is started
+                        ctx.drawImage(background, 0, 0, ctx.canvas.width, ctx.canvas.height);
+                        for (var i = 0; i < bt.length; i++) {
+                                bt[i].draw();
+                        }
+                        ctx.fillStyle = "#004b00ff";
+                        ctx.fillRect(0, ctx.canvas.height - 100, ctx.canvas.width, 100);
+                        for (var i = 0; i < obstacles.length; i++) {
+                                obstacles[i].draw();
+                        }
+                }, 500);
 
                 function draw() {
                         ctx.drawImage(background, 0, 0, ctx.canvas.width, ctx.canvas.height);
@@ -283,13 +286,13 @@
                         for (var i = 0; i < obstacles.length; i++) {
                                 obstacles[i].physics();
                                 obstacles[i].draw();
-				if(isTouching(obstacles[i])){
-					endGame(false);
-					return;
-				}
+                                if (isTouching(obstacles[i])) {
+                                        endGame(false);
+                                        return;
+                                }
                         }
                         playerPhysics();
-                        ctx.fillText(JSON.stringify(obstacles[10]), 10, 90);
+                        ctx.fillText(JSON.stringify(obstacles[16]), 10, 90);
                         ctx.fillStyle = "#33bb66";
                         ctx.fillRect(playerX, playerY, playerWidth, playerHeight);
                         requestAnimationFrame(draw);
@@ -302,29 +305,55 @@
                         playerY += velY;
                         if (playerY > ctx.canvas.height - 100 - playerHeight) {
                                 velY = 0;
+                                playerY = ctx.canvas.height - 100 - playerHeight
                         }
                 }
 
                 function startGame() {
                         document.getElementById("menu").style.display = "none";
-			for (var i = 0; i < obstacles.length; i++) {
-				if(obstacles[i].x < 200){ //If the obstacles are too close to where the player starts, they won't be able to react in time
-					obstacles[i].y = 3000;
-				}
-			}
-			playerX = 100;
+                        for (var i = 0; i < obstacles.length; i++) {
+                                if (obstacles[i].x < 200) { //If the obstacles are too close to where the player starts, they won't be able to react in time
+                                        obstacles[i].y = 3000;
+                                }
+                        }
+                        playerX = 100;
                         draw();
                 }
 
-		function endGame(playerWon) {
-			document.getElementById("menu").style.display = "block";
-			if(playerWon){
-			
-			} else {
-				document.getElementById("message").innerText = "Looks like that didn't go as planned...";
-				document.getElementById("playButton").innerText = "Try Again";
-			}
-		}
+                function endGame(playerWon) {
+                        document.getElementById("menu").style.display = "block";
+                        if (playerWon) {
+
+                        } else {
+                                document.getElementById("mainMessage").innerText = "Looks like that didn't go as planned...";
+                                document.getElementById("message").innerText = "Press space to try again";
+                                document.getElementById("playButton").innerText = "Try Again";
+                        }
+                }
+
+                function changeScale() {
+                        rScale = document.getElementById("renderScale").value / 10;
+                        ctx.canvas.width = window.innerWidth * rScale;
+                        ctx.canvas.height = window.innerHeight * rScale;
+                        //Re-position the obstacles and the player
+                        for (var i = 0; i < 15; i++) {
+                                obstacles[i].y = ctx.canvas.height - 358;
+				obstacles[i].origY = ctx.canvas.height - 358;
+                        }
+                        obstacles[15].origY = ctx.canvas.height - 164;
+                        obstacles[16].origY = ctx.canvas.height - 164;
+                        var playerY = ctx.canvas.height - 200;
+                        //Re-draw the starting background
+                        ctx.drawImage(background, 0, 0, ctx.canvas.width, ctx.canvas.height);
+                        for (var i = 0; i < bt.length; i++) {
+                                bt[i].draw();
+                        }
+                        ctx.fillStyle = "#004b00ff";
+                        ctx.fillRect(0, ctx.canvas.height - 100, ctx.canvas.width, 100);
+                        for (var i = 0; i < obstacles.length; i++) {
+                                obstacles[i].draw();
+                        }
+                }
         </script>
 </body>
 
