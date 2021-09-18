@@ -7,7 +7,7 @@
 <body>
         <div id="menu">
                 <h1 style="font-size: 3em" id="mainMessage">Sierra Run!</h1>
-                <p id="message">Can you get away from the bear? Press s to slide under trees and space to jump over rocks.</p>
+                <p id="message">Can you get to the right side of the screen? Press <key>S</key> or <key>r</key> to slide under trees and <key>w</key> or <key>q</key> to jump over rocks.</p>
                 <button onclick="startGame()" id="playButton">Play Now</button>
                 <p>If Sierra Run is lagging, try lowering the resolution</p>
                 <lablel>50%</label><input type="range" min="5" max="10" value="10" id="renderScale" oninput="changeScale()"></input>
@@ -65,6 +65,16 @@
                                 transform: scale(1);
                         }
                 }
+
+                @font-face {
+                        font-family: keyboard;
+                        src: url("fonts/keyboard.otf");
+                }
+
+                key {
+                        font-family: keyboard;
+                        font-size: xx-large;
+                }
         </style>
         <script>
                 var canv = document.getElementById("gameView");
@@ -82,6 +92,7 @@
                 var velX = 1;
                 var obstacles = [];
                 var bt = [];
+                var noClip = true;
                 const tree = document.createElement("Img");
                 tree.src = "tree.svg";
                 const background = document.createElement("Img");
@@ -212,7 +223,7 @@
                         var hitbox = object.getHitbox();
                         if (playerX + playerWidth >= hitbox.x1 && playerX <= hitbox.x2) {
                                 if (playerY + playerHeight >= hitbox.y1 && playerY <= hitbox.y2) {
-                                        return true;
+                                        return true && !noClip;
                                 }
                         }
                         return false;
@@ -254,7 +265,7 @@
                 }
 
                 document.body.onkeyup = function(e) {
-                         if (e.keyCode == 83  || e.keyCode == 40) {
+                        if (e.keyCode == 83 || e.keyCode == 40) {
                                 playerY -= 50;
                                 playerHeight = 100;
                                 playerWidth = 50;
@@ -295,6 +306,10 @@
                         ctx.fillText(JSON.stringify(obstacles[16]), 10, 90);
                         ctx.fillStyle = "#33bb66";
                         ctx.fillRect(playerX, playerY, playerWidth, playerHeight);
+                        if (playerX > ctx.canvas.width - 200) {
+                                endGame(true);
+                                return;
+                        }
                         requestAnimationFrame(draw);
                 }
 
@@ -305,7 +320,7 @@
                         playerY += velY;
                         if (playerY > ctx.canvas.height - 100 - playerHeight) {
                                 velY = 0;
-                                playerY = ctx.canvas.height - 100 - playerHeight
+                                playerY = ctx.canvas.height - 100 - playerHeight;
                         }
                 }
 
@@ -323,7 +338,9 @@
                 function endGame(playerWon) {
                         document.getElementById("menu").style.display = "block";
                         if (playerWon) {
-
+                                document.getElementById("mainMessage").innerText = "You win!";
+                                document.getElementById("message").innerText = "More levels coming soon.";
+                                document.getElementById("playButton").innerText = "Play Again";
                         } else {
                                 document.getElementById("mainMessage").innerText = "Looks like that didn't go as planned...";
                                 document.getElementById("message").innerText = "Press space to try again";
@@ -338,7 +355,7 @@
                         //Re-position the obstacles and the player
                         for (var i = 0; i < 15; i++) {
                                 obstacles[i].y = ctx.canvas.height - 358;
-				obstacles[i].origY = ctx.canvas.height - 358;
+                                obstacles[i].origY = ctx.canvas.height - 358;
                         }
                         obstacles[15].origY = ctx.canvas.height - 164;
                         obstacles[16].origY = ctx.canvas.height - 164;
