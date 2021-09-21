@@ -93,6 +93,8 @@
                 var obstacles = [];
                 var bt = [];
                 var noClip = false;
+		var score = 0;
+		var scoreChange = 0;
                 const tree = document.createElement("Img");
                 tree.src = "tree.svg";
                 const background = document.createElement("Img");
@@ -247,6 +249,7 @@
                                 playerHeight = 50;
                                 playerWidth = 100;
                                 velX = 0;
+				scoreChange = -0.5;
                         } else if (e.keyCode == 32 | e.keyCode == 38) {
                                 velY = -10;
                                 setTimeout(function() {
@@ -270,6 +273,7 @@
                                 playerHeight = 100;
                                 playerWidth = 50;
                                 velX = 1;
+				scoreChange = 1;
                         }
                 }
 
@@ -287,6 +291,7 @@
                 }, 500);
 
                 function draw() {
+			score += scoreChange;
                         ctx.drawImage(background, 0, 0, ctx.canvas.width, ctx.canvas.height);
                         for (var i = 0; i < bt.length; i++) {
                                 bt[i].physics();
@@ -303,7 +308,7 @@
                                 }
                         }
                         playerPhysics();
-                        ctx.fillText(JSON.stringify(obstacles[16]), 10, 90);
+                        ctx.fillText("Score: " + score, 10, 10);
                         ctx.fillStyle = "#33bb66";
                         ctx.fillRect(playerX, playerY, playerWidth, playerHeight);
                         if (playerX > ctx.canvas.width - 200) {
@@ -325,6 +330,8 @@
                 }
 
                 function startGame() {
+			score = 0;
+			scoreChange = 2;
                         document.getElementById("menu").style.display = "none";
                         for (var i = 0; i < obstacles.length; i++) {
                                 if (obstacles[i].x < 300) { //If the obstacles are too close to where the player starts, they won't be able to react in time
