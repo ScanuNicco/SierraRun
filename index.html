@@ -103,6 +103,16 @@
                 backTrees.src = "backgroundTrees.svg";
                 const rock = document.createElement("Img");
                 rock.src = "rock.svg";
+		var runStates = [];
+		for(var i = 1; i < 5; i++){
+			var runner = document.createElement("Img");
+			runner.src = "stickrun" + i + ".svg";
+			runStates.push(runner);
+		}
+		const slideState = document.createElement("Img");
+		slideState.src = "stickslide.svg"
+		var sliding = false;
+		var jumping = false;
 
                 class Obstacle {
                         constructor(x, y) {
@@ -250,6 +260,7 @@
                                 playerWidth = 100;
                                 velX = 0;
 				scoreChange = -0.5;
+				sliding = true;
                         } else if (e.keyCode == 32 | e.keyCode == 38) {
                                 velY = -10;
                                 setTimeout(function() {
@@ -274,6 +285,7 @@
                                 playerWidth = 50;
                                 velX = 1;
 				scoreChange = 1;
+				sliding = false;
                         }
                 }
 
@@ -290,14 +302,24 @@
                         }
                 }, 500);
 
+		var runState = 0;
+		var ticks = 0;
                 function draw() {
+			ticks++;
+			if(ticks % 3 == 0){ //Change the run state every third frame
+				if(runState == 3){
+					runState = 0;
+				} else {
+					runState++;
+				}
+			}
 			score += scoreChange;
-                        ctx.drawImage(background, 0, 0, ctx.canvas.width, ctx.canvas.height);
-                        for (var i = 0; i < bt.length; i++) {
+                        ctx.drawImage(background, 0, 0, ctx.canvas.width, ctx.canvas.height); //draw the background image
+                        for (var i = 0; i < bt.length; i++) { //draw each obstacle and run physics according to its functions
                                 bt[i].physics();
                                 bt[i].draw();
                         }
-                        ctx.fillStyle = "#004b00ff";
+                        ctx.fillStyle = "#004b00ff"; //draw the ground
                         ctx.fillRect(0, ctx.canvas.height - 100, ctx.canvas.width, 100);
                         for (var i = 0; i < obstacles.length; i++) {
                                 obstacles[i].physics();
@@ -310,7 +332,11 @@
                         playerPhysics();
                         ctx.fillText("Score: " + score, 10, 10);
                         ctx.fillStyle = "#33bb66";
-                        ctx.fillRect(playerX, playerY, playerWidth, playerHeight);
+			if(sliding){
+				ctx.drawImage(slideState, playerX, playerY, playerWidth, playerHeight);
+			} else {
+                        	ctx.drawImage(runStates[runState], playerX, playerY, playerWidth, playerHeight);
+			}
                         if (playerX > ctx.canvas.width - 200) {
                                 endGame(true);
                                 return;
