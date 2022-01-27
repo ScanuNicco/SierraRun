@@ -109,8 +109,12 @@
 			runner.src = "stickrun" + i + ".svg";
 			runStates.push(runner);
 		}
-		const slideState = document.createElement("Img");
-		slideState.src = "stickslide.svg"
+		var slideStates = [];
+		for(var i = 1; i < 5; i++){
+			var slider = document.createElement("Img");
+			slider.src = "stickslide" + i + ".svg";
+			slideStates.push(slider);
+		}
 		var sliding = false;
 		var jumping = false;
 
@@ -261,8 +265,16 @@
                                 velX = 0;
 				scoreChange = -0.5;
 				sliding = true;
-                        } else if (e.keyCode == 32 | e.keyCode == 38) {
+                        } else if (e.keyCode == 32 || e.keyCode == 38) {
                                 velY = -10;
+				if(sliding){ //Jumping will cause the player to stop sliding
+					playerY -= 50;
+                                	playerHeight = 100;
+                                	playerWidth = 50;
+                                	velX = 1;
+					scoreChange = 1;
+					sliding = false;
+				}
                                 setTimeout(function() {
                                         velY = -5
                                 }, 200);
@@ -303,6 +315,7 @@
                 }, 500);
 
 		var runState = 0;
+		var slideState = 0;
 		var ticks = 0;
                 function draw() {
 			ticks++;
@@ -311,6 +324,11 @@
 					runState = 0;
 				} else {
 					runState++;
+				}
+				if(slideState == 3){
+					slideState = 0;
+				} else {
+					slideState++;
 				}
 			}
 			score += scoreChange;
@@ -333,7 +351,7 @@
                         ctx.fillText("Score: " + score, 10, 10);
                         ctx.fillStyle = "#33bb66";
 			if(sliding){
-				ctx.drawImage(slideState, playerX, playerY, playerWidth, playerHeight);
+				ctx.drawImage(slideStates[slideState], playerX, playerY, playerWidth, playerHeight);
 			} else {
                         	ctx.drawImage(runStates[runState], playerX, playerY, playerWidth, playerHeight);
 			}
