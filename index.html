@@ -118,21 +118,23 @@
 		var sliding = false;
 		var jumping = false;
 		const times = [];
-		let fps;
+		let avgFps; //Average FPS, shown to the user
+		let istFps; //Instantaneous FPS, used to calculate speed of objects
+		var lastCalledTime;
 
                 class Obstacle {
                         constructor(x, y) {
                                 this.x = x;
                                 this.y = y;
-                                this.xVel = -5;
+                                this.xVel = -300;
                                 this.yVel = 0;
                                 this.origY = y;
                                 this.width = 0;
                         }
 
                         physics() {
-                                this.x += this.xVel;
-                                this.y += this.yVel;
+                                this.x += this.xVel  * (1 / istFps);
+                                this.y += this.yVel  * (1 / istFps);
                                 if (this.x < 0 - this.width) {
                                         this.x = ctx.canvas.width * 2 + Math.floor(Math.random() * ctx.canvas.width);
                                         this.y = this.origY;
@@ -179,8 +181,8 @@
                         }
 
                         physics() {
-                                this.x += this.xVel;
-                                this.y += this.yVel;
+                                this.x += this.xVel * (1 / istFps);
+                                this.y += this.yVel * (1 / istFps);
                                 if (this.x < 0) {
                                         var rockPlaced = false;
                                         for (var i = ctx.canvas.width; i < ctx.canvas.width * 2; i++) {
@@ -230,7 +232,7 @@
                         }
 
                         physics() {
-                                this.x -= 2;
+                                this.x -= 120 * (1 / istFps);
                                 if (this.x < -1220) {
                                         this.x += 4880;
                                 }
@@ -320,6 +322,7 @@
 		var slideState = 0;
 		var ticks = 0;
                 function draw() {
+			calculateFPS();
 			ticks++;
 			if(ticks % 3 == 0){ //Change the run state every third frame
 				if(runState == 3){
@@ -350,8 +353,7 @@
                                 }
                         }
                         playerPhysics();
-			calculateFPS();
-                        ctx.fillText("FPS: " + fps + ", Score: " + score, 10, 10);
+                        ctx.fillText("FPS: " + avgFps + ", Score: " + score, 10, 10);
                         ctx.fillStyle = "#33bb66";
 			if(sliding){
 				ctx.drawImage(slideStates[slideState], playerX, playerY, playerWidth, playerHeight);
@@ -432,7 +434,16 @@
     				times.shift();
     			}
     			times.push(now);
-    			fps = times.length;
+    			avgFps = times.length;
+
+			if(!lastCalledTime) {
+				lastCalledTime = Date.now();
+				istFps = 60; //to start off, assume the fps is 60
+				return;
+			}
+			delta = (Date.now() - lastCalledTime)/1000;
+			lastCalledTime = Date.now();
+			istFps = 1/delta;
 		}
         </script>
 </body>
